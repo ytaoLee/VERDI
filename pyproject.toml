@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "verdi-retrieval"
+version = "0.1.0"
+description = "Verifiable encrypted image retrieval with dynamic updates"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.26,<2", "cryptography>=44", "Pillow>=11", "psutil>=7"]
+license = {file = "LICENSE"}
+
+[project.optional-dependencies]
+plots = ["matplotlib>=3.10"]
+encoder = ["torch>=2.6", "torchvision>=0.21", "ftfy>=6", "regex", "tqdm"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+verdi = ["paper_inputs.json"]
