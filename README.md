@@ -22,7 +22,7 @@ The demo generates small input fixtures and checks the actual encrypted protocol
 
 ## Paper experiments
 
-Datasets and model weights are obtained separately; see [dataset setup](docs/DATASETS.md). The repository contains image filename orders, query IDs, cache hashes, and the original protocol parameters. It contains no dataset images, captions, feature arrays, keys, external method implementations, or manuscript files.
+Datasets and model weights are obtained separately; see [dataset setup](docs/DATASETS.md). The repository contains image filename orders, query IDs, cache hashes, and the original protocol parameters. Dataset annotations are not included in this repository. Please download them directly from the official website.
 
 ```bash
 python scripts/benchmark.py --cache-root /path/to/verdi_features --output outputs/pilot --pilot --queries 2 --repeats 1
