@@ -4,4 +4,5 @@ from .retrieval import ExperimentClient as RetrievalClient, flat_snapshot
 from .protocol import Transport, fixed, oracle
 from .image import ImageCodec, bind_image, recover_image
 from .api import image_search
-__version__ = "0.1.0"
+from .directory import DirectoryOwner
+__version__ = "0.2.0"

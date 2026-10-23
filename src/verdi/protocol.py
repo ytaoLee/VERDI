@@ -272,7 +272,9 @@ def server_main(store, pipe):
 
 
 class Transport:
-    def __init__(self, store, network=False):
+    def __init__(self, store, network=False, timeout=30):
+        if timeout is not None and timeout <= 0:
+            raise ValueError('Socket inactivity timeout must be positive or None')
         self.store = store
         self.network = network
         self.sock = self.process = None
@@ -281,7 +283,7 @@ class Transport:
             self.process = mp.Process(target=server_main, args=(store, child))
             self.process.start()
             port = parent.recv()
-            self.sock = socket.create_connection(('127.0.0.1', port))
+            self.sock = socket.create_connection(('127.0.0.1', port), timeout=timeout)
             self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self.reset()
 

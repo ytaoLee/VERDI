@@ -38,4 +38,17 @@ The code is a research implementation: collection-authorized clients hold decryp
 
 ## Release
 
+Version 0.2 adds an ID-paged authenticated directory, an optional forced-sidecar policy, and a configurable socket inactivity timeout. The original default scalar filtering and image-format choice are retained. The earlier 0.1.0 release remains available as a fixed version.
+
+```python
+from verdi import DirectoryOwner, RetrievalClient, Transport
+owner = DirectoryOwner(features, calibration, capacity=16)
+snapshot = owner.publish()
+top, stats, certificate = RetrievalClient(
+    owner, Transport(owner.store), snapshot
+).search(query_vector, k=11, mode="fine_only")
+```
+
+Use `ImageCodec.encode(..., force_sidecar=True)` or `bind_image(..., force_sidecar=True)` for a sidecar with the same authentication checks. `Transport(..., network=True, timeout=30)` applies an inactivity timeout to network reads; `None` selects blocking reads. This is not a total query deadline or an availability guarantee. The directory publisher enumerates live pages; it does not implement logarithmic publication time.
+
 The public release packages the measured core algorithms and makes file paths portable. Query journals are produced locally rather than shipping datasets or historical experiment archives. [License](LICENSE) states the current rights; third-party Python dependencies are installed separately under their own terms.

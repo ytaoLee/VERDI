@@ -14,10 +14,10 @@ class ImageCodec:
         self.kglobal=secrets.token_bytes(32);self.kregion=secrets.token_bytes(32)
     def region_key(self,context,iv,j):
         return hmac.new(self.kenc,ser(['carrier-key',context,iv.hex(),j]),hashlib.sha256).digest()
-    def encode(self,tiles,context):
+    def encode(self,tiles,context,force_sidecar=False):
         compressed=[zlib.compress(x,9) for x in tiles]
         lengths=[76 if j==0 else 44 for j in range(len(tiles))]
-        embed=all(len(t)-4-len(z)>=need for t,z,need in zip(tiles,compressed,lengths))
+        embed=(not force_sidecar) and all(len(t)-4-len(z)>=need for t,z,need in zip(tiles,compressed,lengths))
         mode='embed' if embed else 'sidecar'
         ivs=[secrets.token_bytes(16) for _ in tiles]
         meta={'mode':mode,'lengths':[len(t) for t in tiles],'zlen':[len(z) for z in compressed] if embed else [],'ivs':[iv.hex() for iv in ivs]}
@@ -91,7 +91,7 @@ def image_commitment(obj):
     return sha(ser([obj['expected'], hashlib.sha256(obj['meta']).hexdigest(), obj['mode']]))
 
 
-def bind_image(owner, codec, record_id, image, region_size=64):
+def bind_image(owner, codec, record_id, image, region_size=64, force_sidecar=False):
     """Bind canonical RGB to an existing feature record before publication."""
     import numpy as np
     image = np.asarray(image)
@@ -103,7 +103,7 @@ def bind_image(owner, codec, record_id, image, region_size=64):
     slot = owner.records[record_id]
     context = [owner.db, int(record_id), slot[1], owner.model, owner.epoch,
                slot[2].hex(), list(image.shape), coords]
-    obj = codec.encode(regions, context)
+    obj = codec.encode(regions, context, force_sidecar=force_sidecar)
     record = list(slot)
     record[4] = image_commitment(obj)
     owner.records[record_id] = tuple(record)
