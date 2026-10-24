@@ -40,4 +40,10 @@ python scripts/plot_results.py --records outputs/retrieval/coco/scale_1000/queri
 
 `images.py` retains the original regional encode/decode timers, 32/64/128-pixel capacity checks, content/packet/metadata corruption checks, whole-record substitution checks, and authenticated descriptor commitments. Input decoding, tiling and reassembly are outside encode/decode timers. Exact recovery refers to decoded RGB bytes. The core API and tests also connect authenticated result descriptors to bound image recovery.
 
-Functional tests/demo use generated fixtures and are never substituted for the real dataset experiments. Historical result archives and the manuscript remain in the authors' research workspace, outside this core-code release.
+Functional tests/demo use generated fixtures and are never substituted for the real dataset experiments. The manuscript remains separate from this core-code release.
+
+## Versioned measurement artifact
+
+[Experiment artifact v1](https://github.com/ytaoLee/VERDI/releases/tag/artifact-v1.0) is a separate release asset containing the author extensions and non-content records for Tables VI-IX. Its README maps each table to frozen measurement code, environment, raw records and reconstruction commands. `python reproduce.py --output ../recomputed_tables` rebuilds all four tables and their reported intervals using only NumPy 1.26.4. It verifies warmup exclusions, application frames and saved reference-ID ranks. Dataset caches can be independently checked with the included `export_reference.py`.
+
+The artifact also provides `stage_workspace.py` and bounded execution recipes for a fresh workspace after obtaining legal inputs and dependencies. Frozen measured source and path adaptations are separately identified. No dataset, feature array, key bundle, third-party source tree or implementation substitute is included. This provides access to measurement evidence while keeping this repository focused on the authors' core code.

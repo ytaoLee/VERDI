@@ -34,6 +34,8 @@ python scripts/quality.py --features /path/to/verdi_features/coco --output outpu
 
 See [reproduction instructions](docs/REPRODUCING.md), [protocol and measurement scope](docs/PROTOCOL.md), and the [code map](docs/CODE_MAP.md). All six retrieval modes are internal layouts or ablations of VERDI. `full` retains both filters and complete coverage verification. No external comparison implementation is bundled.
 
+The separate [experiment artifact v1](https://github.com/ytaoLee/VERDI/releases/tag/artifact-v1.0) supplies the authors' frozen measurement extensions, non-content query/image records, hashes, table reconstruction and fresh-workspace recipes for the mixed-load, paired-format and matched protocol measurements. Download its ZIP and run `python reproduce.py --output ../recomputed_tables` with NumPy 1.26.4 to rebuild Tables VI-IX without datasets or network execution. The archive contains no dataset content, feature arrays, private key bundles or third-party source trees. Core v0.1.0/v0.2.0 tags remain unchanged.
+
 The code is a research implementation: collection-authorized clients hold decryption keys, access traces remain visible, and the prototype requires Python assertions to be enabled. CPU-constrained and paced-relay runs emulate a desktop client and controlled application links. The repository does not claim phone measurements or semantic image-relevance accuracy.
 
 ## Release
