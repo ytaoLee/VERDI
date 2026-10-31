@@ -1,0 +1,2 @@
+/paper_data/*.json text eol=lf
+/paper_data/*.csv text eol=lf

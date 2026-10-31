@@ -9,6 +9,9 @@ Download the unchanged `artifact-v1.0` and `artifact-v1.1` release ZIPs.
 The root for v1 has `SHA256SUMS.json`; the root for v1.1 has `MANIFEST.json`.
 Use Python 3.11 and NumPy 1.26.4:
 
+Tracked numeric sources use LF on every platform so checkout preserves their
+pinned byte hashes.
+
 ~~~bash
 python scripts/reconstruct_paper.py --artifact-v1 /path/to/v1 --artifact-v1-1 /path/to/v1.1 --output outputs/paper
 ~~~
