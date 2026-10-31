@@ -2,13 +2,39 @@
 
 Author implementation of **VERDI: Verifiable Encrypted Image Retrieval with Dynamic Updates**.
 
-VERDI performs image-to-image retrieval using encrypted image embeddings. An authorized client scores authenticated objects locally, verifies exact integer top-k coverage, and removes the query image from the final neighbors. A dynamic authenticated tree separates record revisions from snapshot versions. The image module binds RGB carriers to feature records, supports regional diagnosis, and recovers valid embedded or sidecar records exactly.
+VERDI is a client-assisted verification protocol for image-to-image retrieval.
+The authorized client holds collection-level decryption keys, keeps its query
+local, and checks exact fixed-point score/ID ranking under a trusted snapshot pin.
+Accepted image release is bound to the selected record revision. The verifier
+accounts for every live record; authentication of returned objects alone is
+insufficient.
 
-## Installation
+## Layouts and deployment
 
-Use Python 3.11 for the recorded experiment environment. From the repository root:
+The verification core supports three authenticated layouts:
 
-```bash
+| Layout | Owner and explicit search mode | Role in the current paper |
+| --- | --- | --- |
+| Flat listing | `FlatOwner`, `flat_fine` | Recommended fine-filtered layout for the measured empty-cache query workloads |
+| ID directory | `DirectoryOwner`, `fine_only` | Lower update traffic with higher owner work in the tested 10K mixed loopback workloads |
+| Geometric tree | `Owner`, `full` | Optional subtree bounds; observed pruning does not offset its costs |
+
+Clients must be able to decrypt, score and audit locally. At COCO 50K,
+Flat + fine uses 52.9% less mean traffic than Flat scan, with 41.4% higher
+local median latency. Controlled 10K links favor Flat + fine, while bulk
+Flat scan is faster locally. This is a communication/processing trade-off,
+not a universal latency advantage. Access traces remain visible.
+
+The raw key `full` means **Geo + fine**. The legacy API default remains
+`full` for compatibility; use explicit modes as below. Frozen record keys
+are preserved. [Protocol](docs/PROTOCOL.md) and
+[paper alignment](docs/PAPER_ALIGNMENT.md) document the exact mapping.
+
+## Install and check
+
+Use Python 3.11 and NumPy 1.26.4 for the recorded reconstruction environment.
+
+~~~bash
 python -m venv .venv
 # Linux/macOS: source .venv/bin/activate
 # Windows PowerShell: .\.venv\Scripts\Activate.ps1
@@ -16,41 +42,80 @@ python -m pip install -r requirements.txt
 python -m pip install -e . --no-deps
 python -m unittest discover -s tests -v
 python scripts/demo.py
-```
+~~~
 
-The demo generates small input fixtures and checks the actual encrypted protocol over TCP. Its output is a functional check and is not a paper experiment.
+The demo uses generated fixtures, Flat + fine over TCP, authenticated result
+descriptors and exact RGB recovery. Carriers are supplied locally in this
+functional example; it does not time image delivery or produce paper measurements.
+Python assertions must remain enabled.
 
-## Paper experiments
+Given integer gallery/training features and a local integer query:
 
-Datasets and model weights are obtained separately; see [dataset setup](docs/DATASETS.md). The repository contains image filename orders, query IDs, cache hashes, and the original protocol parameters. Dataset annotations are not included in this repository. Please download them directly from the official website.
+~~~python
+from verdi import FlatOwner, Transport, image_search
 
-```bash
-python scripts/benchmark.py --cache-root /path/to/verdi_features --output outputs/pilot --pilot --queries 2 --repeats 1
-python scripts/benchmark.py --cache-root /path/to/verdi_features --output outputs/retrieval --queries 30 --repeats 3
-python scripts/network.py --features /path/to/verdi_features/coco --output outputs/network
-python scripts/updates.py --features /path/to/verdi_features/coco --output outputs/updates --sizes 1000 10000 50000
-python scripts/quality.py --features /path/to/verdi_features/coco --output outputs/quality
-```
-
-See [reproduction instructions](docs/REPRODUCING.md), [protocol and measurement scope](docs/PROTOCOL.md), and the [code map](docs/CODE_MAP.md). All six retrieval modes are internal layouts or ablations of VERDI. `full` retains both filters and complete coverage verification. No external comparison implementation is bundled.
-
-The separate [experiment artifact v1](https://github.com/ytaoLee/VERDI/releases/tag/artifact-v1.0) supplies the authors' frozen measurement extensions, non-content query/image records, hashes, table reconstruction and fresh-workspace recipes for the mixed-load, paired-format and matched protocol measurements. Download its ZIP and run `python reproduce.py --output ../recomputed_tables` with NumPy 1.26.4 to rebuild Tables VI-IX without datasets or network execution. The archive contains no dataset content, feature arrays, private key bundles or third-party source trees. Core v0.1.0/v0.2.0 tags remain unchanged.
-
-The code is a research implementation: collection-authorized clients hold decryption keys, access traces remain visible, and the prototype requires Python assertions to be enabled. CPU-constrained and paced-relay runs emulate a desktop client and controlled application links. The repository does not claim phone measurements or semantic image-relevance accuracy.
-
-## Release
-
-Version 0.2 adds an ID-paged authenticated directory, an optional forced-sidecar policy, and a configurable socket inactivity timeout. The original default scalar filtering and image-format choice are retained. The earlier 0.1.0 release remains available as a fixed version.
-
-```python
-from verdi import DirectoryOwner, RetrievalClient, Transport
-owner = DirectoryOwner(features, calibration, capacity=16)
+owner = FlatOwner(features, calibration, capacity=16, bits=6)
 snapshot = owner.publish()
-top, stats, certificate = RetrievalClient(
-    owner, Transport(owner.store), snapshot
-).search(query_vector, k=11, mode="fine_only")
-```
+transport = Transport(owner.store, network=True)
+try:
+    neighbors, stats, certificate = image_search(
+        owner, transport, snapshot, query,
+        query_id=query_id, k=10, mode="flat_fine", batch=16
+    )
+finally:
+    transport.close()
+~~~
 
-Use `ImageCodec.encode(..., force_sidecar=True)` or `bind_image(..., force_sidecar=True)` for a sidecar with the same authentication checks. `Transport(..., network=True, timeout=30)` applies an inactivity timeout to network reads; `None` selects blocking reads. This is not a total query deadline or an availability guarantee. The directory publisher enumerates live pages; it does not implement logarithmic publication time.
+Use `query_id=None` for an outside query. For a gallery query, its ID causes
+top-(k+1) verification followed by local self exclusion. Image commitments
+must be bound with `bind_image` before publication for image recovery;
+the retrieval-only benchmark deliberately excludes image transfers.
 
-The public release packages the measured core algorithms and makes file paths portable. Query journals are produced locally rather than shipping datasets or historical experiment archives. [License](LICENSE) states the current rights; third-party Python dependencies are installed separately under their own terms.
+## Reproduce the current displays
+
+[Artifact v1.0](https://github.com/ytaoLee/VERDI/releases/tag/artifact-v1.0)
+retains the original mixed-load, paired-format and matched local/network
+records. [Artifact v1.1](https://github.com/ytaoLee/VERDI/releases/tag/artifact-v1.1)
+adds the independent in/out query panel and fresh budget-10/40 network suite.
+Both archives and core tags remain unchanged.
+
+Download and unpack both ZIPs, verify their SHA-256 values in
+[the manifest](configs/paper_manifest.json), then run:
+
+~~~bash
+python scripts/reconstruct_paper.py --artifact-v1 /path/to/v1 --artifact-v1-1 /path/to/v1.1 --output outputs/paper
+~~~
+
+This verifies archived file identities, runs the frozen record auditors and
+exports the current Tables II-VII with stable labels. Table II is projected
+from saved author aggregates; Tables III-VII are rebuilt from archived
+non-content records. Historical filenames such as `table_VI.json` are not
+the current paper numbering. The fresh 10/40 network suite is not pooled
+with earlier 10/80 timings.
+
+~~~bash
+# Saved core aggregates only; no artifact download or benchmark:
+python scripts/reconstruct_paper.py --core-only --output outputs/paper_core
+# Optional plotting dependency and the current Windows network bar figure:
+python -m pip install -e ".[plots]"
+python scripts/plot_network_profiles.py --output outputs/windows_network
+~~~
+
+The figure CSV contains rounded published display values, not raw trials.
+See [reproduction details](docs/REPRODUCING.md) for fresh benchmark commands,
+statistics, environment separation and excluded timing stages.
+
+## Inputs, versions and scope
+
+[Dataset setup](docs/DATASETS.md) lists legal input acquisition and cache
+identities. Datasets, captions, feature arrays, model weights and private
+keys are not redistributed. Frozen `v0.1.0` (`ef72147555c3`) plus recorded
+extensions produced the measurements. Public `v0.2.0` (`10990ba35319`) adds
+ID pages, forced sidecars and configurable inactivity timeouts. Subsequent
+documentation and reconstruction tools do not replace those measured identities.
+
+Image recovery concerns canonical RGB pixels, not original JPEG containers.
+CPU affinity and shaped links are desktop/controlled-network experiments.
+The repository does not claim mobile hardware, hidden accesses or semantic
+image-relevance accuracy. External implementations are obtained separately;
+none are copied here. [Code map](docs/CODE_MAP.md), [License](LICENSE).

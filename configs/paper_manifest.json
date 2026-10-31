@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "manuscript_edition": "2026-10-31",
+  "protocol_version": "0.2.0",
+  "measured_core": {
+    "v0.1.0": "ef72147555c3",
+    "public_v0.2.0": "10990ba35319",
+    "policy": "Original tags and measurements remain fixed. This branch adds documentation and presentation/reconstruction tools."
+  },
+  "mode_labels": {
+    "full": "Geo + fine",
+    "fine_only": "Tree + fine",
+    "coarse_only": "Tree + coarse",
+    "scan": "Tree scan",
+    "flat_fine": "Flat + fine",
+    "flat_scan": "Flat scan",
+    "directory_fine": "ID directory + fine"
+  },
+  "recommended_query_layout": {
+    "layout": "flat-list-v1",
+    "owner": "FlatOwner",
+    "mode": "flat_fine"
+  },
+  "legacy_api_default": {
+    "mode": "full",
+    "display": "Geo + fine",
+    "note": "Pass mode explicitly. A paper workload recommendation is not a change to the legacy API default."
+  },
+  "directory": {
+    "owner": "DirectoryOwner",
+    "mode": "fine_only",
+    "raw_record_key": "directory_fine",
+    "measured_scope": "10K mixed loopback updates only"
+  },
+  "artifacts": {
+    "v1": {
+      "tag": "artifact-v1.0",
+      "url": "https://github.com/ytaoLee/VERDI/releases/tag/artifact-v1.0",
+      "zip_sha256": "e67045d5b781de8965e4ce133fb35d2e47e07add83cb32f0a3001963f9eab359",
+      "manifest_file": "SHA256SUMS.json",
+      "manifest_sha256": "955da54cbff54631e54f37d3fb5cb732dedd55e670c4462f3e06e90c339668cb"
+    },
+    "v1_1": {
+      "tag": "artifact-v1.1",
+      "url": "https://github.com/ytaoLee/VERDI/releases/tag/artifact-v1.1",
+      "zip_sha256": "7b611ab347b52e89c39dd4715705314107f27e3971b99ec0e583f352c222914b",
+      "manifest_file": "MANIFEST.json",
+      "manifest_sha256": "7bd29a2c04ffe2c90415d3b37ac8593dd05dc9c590810729a0ba8ae9befe9d97"
+    }
+  },
+  "current_displays": [
+    {
+      "table": "II",
+      "label": "tab:exp_ablation",
+      "source": "paper_data/core_summary.json:scale_rows",
+      "projection": "Maximum galleries, six modes; full-vector reads, traffic CI, rounds, median."
+    },
+    {
+      "table": "III",
+      "label": "tab:exp_independent",
+      "source": "v1_1:panel",
+      "projection": "All-query stratum; three layouts per dataset; 100 queries, one run each."
+    },
+    {
+      "table": "IV",
+      "label": "tab:exp_mixed_load",
+      "source": "v1:table_VI",
+      "projection": "Flat + fine and ID directory only; query interval 10/1; retain publication columns."
+    },
+    {
+      "table": "V",
+      "label": "tab:exp_paired_images",
+      "source": "v1:table_VII",
+      "projection": "Stored mean kB and median regional decoding, auto/forced sidecar."
+    },
+    {
+      "table": "VI",
+      "label": "tab:exp_external",
+      "source": "v1:table_VIII",
+      "projection": "Budgets 10/40/80, Geo + fine and Flat + fine; traffic, median, float set recall CI, integer ordered agreement."
+    },
+    {
+      "table": "VII",
+      "label": "tab:exp_external_network",
+      "source": "v1_1:network",
+      "projection": "Fresh matched budgets 10/40 and Geo + fine; traffic, median CI and empirical P95."
+    },
+    {
+      "figure": "3",
+      "label": "fig:exp_scaling",
+      "source": "paper_data/core_summary.json:scale_rows"
+    },
+    {
+      "figure": "4",
+      "label": "fig:exp_network",
+      "source": "paper_data/windows_network_display.csv",
+      "note": "Rounded display medians/CIs for all six Windows profiles; not raw per-query data."
+    },
+    {
+      "figure": "5",
+      "label": "fig:exp_updates",
+      "source": "paper_data/core_summary.json:update_rows"
+    }
+  ],
+  "data_files": {
+    "paper_data/core_summary.json": "9eb2c8df2056e6faf1c4d3637c21b3b0fe0230ab48e941de6c480ef78abf220d",
+    "paper_data/windows_network_display.csv": "909dea4fa55e49215553d8a9a21ae78e188fed0ee4de48a1a8a05facd62cbec8"
+  }
+}

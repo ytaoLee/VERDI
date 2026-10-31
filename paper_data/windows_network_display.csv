@@ -1,0 +1,19 @@
+profile,method,median_ms,ci_low_ms,ci_high_ms
+"Local, 2 CPUs",Geo + fine,455.3,452.7,456.1
+"Local, 2 CPUs",Flat + fine,382.8,379.7,385.7
+"Local, 2 CPUs",Flat scan,274.8,273.2,277.3
+"Local, 1 CPU",Geo + fine,470.7,468.6,472.1
+"Local, 1 CPU",Flat + fine,394.5,393.4,395.5
+"Local, 1 CPU",Flat scan,280.7,279.6,281.8
+"50 Mb/s, 2 ms",Geo + fine,2690.6,2679.4,2700.7
+"50 Mb/s, 2 ms",Flat + fine,1323.0,1320.4,1328.9
+"50 Mb/s, 2 ms",Flat scan,2213.2,2211.6,2215.6
+"50 Mb/s, 10 ms",Geo + fine,5108.0,5086.3,5161.9
+"50 Mb/s, 10 ms",Flat + fine,1370.3,1367.7,1374.6
+"50 Mb/s, 10 ms",Flat scan,2237.1,2234.4,2241.3
+"200 Mb/s, 2 ms",Geo + fine,1666.6,1658.0,1672.2
+"200 Mb/s, 2 ms",Flat + fine,637.5,636.2,638.3
+"200 Mb/s, 2 ms",Flat scan,773.0,771.3,775.4
+"200 Mb/s, 10 ms",Geo + fine,4125.5,4107.5,4166.9
+"200 Mb/s, 10 ms",Flat + fine,689.1,685.0,692.5
+"200 Mb/s, 10 ms",Flat scan,801.3,799.1,805.9

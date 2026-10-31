@@ -7,7 +7,12 @@ The evaluation uses COCO and Flickr30k images. Download or request the images fr
 
 No dataset images or captions are redistributed here. Ordered filename lists under `configs/` identify the gallery and disjoint calibration inputs; a filename is an image identifier, not image content. Put the original images anywhere under one root per dataset. Image lookup is recursive by exact filename and rejects ambiguous filenames.
 
-The gallery order contains the complete evaluation image prefix, followed by real training distractors. COCO uses a 5,000-image evaluation prefix and up to 50,000 gallery images; Flickr30k uses a 1,000-image evaluation prefix and up to 25,000 gallery images. Each cache also includes spare update images and 512 disjoint training calibration images. Input content duplicates were excluded when the published filename lists were selected. Image queries are the frozen gallery vectors at the published query IDs. No captions or text encoder calls are used.
+The gallery order contains the complete evaluation image prefix, followed by real training distractors. COCO uses a 5,000-image evaluation prefix and up to 50,000 gallery images; Flickr30k uses a 1,000-image evaluation prefix and up to 25,000 gallery images. Each cache also includes spare update images and 512 disjoint training calibration images. Input content duplicates were excluded when the published filename lists were selected. The original timing panel uses 30 frozen gallery-image queries across scales.
+The additional independent panel uses 100 images per dataset: 50 sampled
+gallery images excluding the original panel, and 50 unused spare images
+disjoint from the maximum gallery and calibration. It has one timing per
+query and balanced in/out bootstrap strata; selection and identity records
+are in artifact-v1.1. No captions or text encoder calls are used.
 
 ## Feature cache
 

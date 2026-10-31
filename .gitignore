@@ -22,6 +22,7 @@ checkpoints/
 *.jsonl
 *.log
 *.csv
+!/paper_data/windows_network_display.csv
 *.jpg
 *.jpeg
 *.png

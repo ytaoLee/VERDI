@@ -1,49 +1,101 @@
-# Reproducing the image-to-image experiments
+# Reproduction
 
-Run commands from the repository root after editable installation. Perform numerical runs sequentially so that unrelated benchmarks do not compete for CPU or network resources.
+Run numerical benchmarks sequentially after editable installation. Rebuilding
+saved summaries is different from generating a fresh performance run.
 
-## Retrieval and parameter sensitivity
+## Current display reconstruction
 
-`scripts/benchmark.py` implements the measured image-to-image scheduler with portable cache/output arguments. It evaluates COCO at 1K/5K/10K/50K and Flickr30k at 1K/5K/10K/25K, 30 published image queries, three repetitions, and six internal modes. Fourteen 10K sensitivity settings vary scalar bits (4/6/8), leaf capacity (8/16/32), request batch (1/4/16/64), and returned k (1/5/10/50), using full VERDI and flat plus fine filtering.
+Download the unchanged `artifact-v1.0` and `artifact-v1.1` release ZIPs.
+The root for v1 has `SHA256SUMS.json`; the root for v1.1 has `MANIFEST.json`.
+Use Python 3.11 and NumPy 1.26.4:
 
-```bash
-python scripts/benchmark.py --cache-root /path/to/verdi_features --output outputs/retrieval
+~~~bash
+python scripts/reconstruct_paper.py --artifact-v1 /path/to/v1 --artifact-v1-1 /path/to/v1.1 --output outputs/paper
+~~~
+
+The tool pins the manifest hashes, checks every recorded file hash, invokes
+the author auditors, then selects the current rows and columns. It exports:
+
+| Current display | Frozen source |
+| --- | --- |
+| Table II, largest-gallery ablation | Saved Windows scale aggregates in `paper_data/core_summary.json` |
+| Table III, independent queries | v1.1 panel records, combined in/out stratum |
+| Table IV, mixed load | v1 historical `table_VI`; eight flat/directory rows and publication columns |
+| Table V, paired image formats | v1 historical `table_VII`; storage and decode pairs |
+| Table VI, matched local comparison | v1 historical `table_VIII`; 10/40/80 budgets, Geo + fine and Flat + fine |
+| Table VII, fresh matched network | v1.1 10/40 records; median CI and empirical P95 |
+| Figures 3/5 quantitative sources | Saved scale/update aggregates |
+| Figure 4 quantitative source | Rounded Windows profile medians and CIs |
+
+`--core-only` exports saved core quantities without running an artifact.
+It does not pretend to rebuild the artifact-dependent tables. The saved core
+CI fields are retained, not recomputed from absent raw trials. All old rows,
+columns and budget-80 network records remain in their original artifacts.
+See [alignment and source identities](PAPER_ALIGNMENT.md).
+
+The current Figure 4 can be drawn with the provided script after installing
+the optional plots dependency:
+
+~~~bash
+python scripts/plot_network_profiles.py --output outputs/windows_network
+~~~
+
+It uses all 18 displayed medians/CIs with square axes and zero-based scales.
+Its CSV is a display source, not a new experiment or raw query journal.
+`plot_results.py` is a general local-journal viewer with canonical mode labels;
+it is not a substitute for the frozen display reconstruction.
+
+## Fresh retrieval runs
+
+Obtain [legal inputs and exact cache identities](DATASETS.md) first:
+
+~~~bash
+python scripts/benchmark.py --cache-root /path/to/verdi_features --output outputs/pilot --pilot --queries 2 --repeats 1
+python scripts/benchmark.py --cache-root /path/to/verdi_features --output outputs/retrieval --queries 30 --repeats 3
 python scripts/audit_records.py --features /path/to/verdi_features/coco --records outputs/retrieval/coco
 python scripts/audit_records.py --features /path/to/verdi_features/flickr30k --records outputs/retrieval/flickr30k
-```
+python scripts/quality.py --features /path/to/verdi_features/coco --output outputs/quality
+~~~
 
-Each query authenticates protocol top-(k+1), removes its image ID, then keeps k neighbors. Integer inner products use normalized embeddings rounded with ties to even at scale 32767; equal scores use ascending image ID. All modes retain the independent coverage verifier. `queries.jsonl`, integer oracles, environment, configuration, summaries, and failures are written under the selected output. Resume only with the identical source/configuration/cache. Checkpoints preserve complete rows and save incomplete trailing bytes separately.
+The scale scheduler evaluates COCO 1K/5K/10K/50K and Flickr30k 1K/5K/10K/25K,
+with the frozen 30-image panel and three repetitions. Fourteen 10K sensitivity
+groups retain their original settings and Geo + fine/Flat + fine controls,
+although the final paper summarizes the parameter trade-off in prose.
+Query records use the original keys, exact integer oracles, and self exclusion.
+Partial tails are saved separately. Resume only with identical cache/source/
+configuration; use a new output folder after changes. Generated fixtures
+in tests and the demo are not performance evidence.
 
-`quality.py` compares integer nearest neighbors with FP64 accumulation over cached FP32 vectors for the evaluation image prefix. It reports ordered agreement and set overlap; it does not measure semantic relevance.
+## Controlled client/network, owner updates and images
 
-## Client constraints and controlled links
-
-`network.py` isolates the client in a separate process, sets one/two logical CPU affinities, samples RSS every 5 ms, and counts both directions of actual TCP application frames. Four paced links combine 50/200 Mb/s and 2/10 ms nominal RTT. Each is checked before and after by 20 measured pings and three 16 MiB transfers in each direction. A failed calibration stops the run. OS scheduling can affect the observed link values; raw calibration records are retained.
-
-```bash
+~~~bash
 python scripts/network.py --features /path/to/verdi_features/coco --output outputs/network
-# Short local-only functional run:
-python scripts/network.py --features /path/to/verdi_features/coco --output outputs/network_local --n 1000 --queries 2 --repeats 1 --profiles local_1cpu
-```
-
-The affinity experiment requires a platform with psutil CPU affinity support (Windows or Linux). There is no hard RAM cap. Query timers exclude encoder calls, server connection setup, and image delivery. Decryption CPU can overlap verification CPU. Application traffic excludes TCP/IP and TLS.
-
-## Updates and image authentication
-
-`updates.py` measures the original owner maintenance/publication code on matched insertion/deletion traces. Post-update queries use image vectors and an integer oracle. It records unchanged surviving descriptors, newly materialized payloads, and exactness. Publication currently walks the full tree; compact changed-object bytes do not establish logarithmic end-to-end publication time.
-
-```bash
 python scripts/updates.py --features /path/to/verdi_features/coco --output outputs/updates --sizes 1000 10000 50000
 python scripts/images.py --features /path/to/verdi_features/coco --images /path/to/coco/images --output outputs/images --count 1000
-python scripts/plot_results.py --records outputs/retrieval/coco/scale_1000/queries.jsonl --output outputs/plots/coco_1000
-```
+~~~
 
-`images.py` retains the original regional encode/decode timers, 32/64/128-pixel capacity checks, content/packet/metadata corruption checks, whole-record substitution checks, and authenticated descriptor commitments. Input decoding, tiling and reassembly are outside encode/decode timers. Exact recovery refers to decoded RGB bytes. The core API and tests also connect authenticated result descriptors to bound image recovery.
+The Windows-style network harness separates client/server/relay, limits
+logical CPU affinity, samples RSS every 5 ms, and actually paces application
+frames at 50/200 Mb/s and nominal 2/10 ms RTT. Pre/post calibration retains
+20 pings and three 16 MiB transfers per direction. Failed gates stop a run.
+This is desktop emulation without a memory cap. Linux routed external
+measurements and the mixed/paired studies use the frozen artifact harnesses,
+not a simplified replacement in this repository.
 
-Functional tests/demo use generated fixtures and are never substituted for the real dataset experiments. The manuscript remains separate from this core-code release.
+Owner payload counts exclude image preparation/upload and network latency
+unless an experiment explicitly measures acknowledged mixed-load uploads.
+Image encode/decode excludes input decoding, tiling and separate RGB
+reassembly. The independent query panel has one timing per image and
+stratified in/out resampling. Mixed-load mean cost sums query, owner and
+acknowledged-upload intervals per query; it is not a query-latency median.
 
-## Versioned measurement artifact
+Unless locally specified, measured panels use 30 query images with three
+runs each, shuffled order and excluded warmups. Traffic/storage/payloads/
+reads/rounds are arithmetic means, times are medians in ms, and intervals
+are 95% CIs from 2,000 query/image block resamples preserving repetitions
+or format pairs. P95 is the empirical 95th percentile.
 
-[Experiment artifact v1](https://github.com/ytaoLee/VERDI/releases/tag/artifact-v1.0) is a separate release asset containing the author extensions and non-content records for Tables VI-IX. Its README maps each table to frozen measurement code, environment, raw records and reconstruction commands. `python reproduce.py --output ../recomputed_tables` rebuilds all four tables and their reported intervals using only NumPy 1.26.4. It verifies warmup exclusions, application frames and saved reference-ID ranks. Dataset caches can be independently checked with the included `export_reference.py`.
-
-The artifact also provides `stage_workspace.py` and bounded execution recipes for a fresh workspace after obtaining legal inputs and dependencies. Frozen measured source and path adaptations are separately identified. No dataset, feature array, key bundle, third-party source tree or implementation substitute is included. This provides access to measurement evidence while keeping this repository focused on the authors' core code.
+New timings depend on hardware, OS, numerical libraries and link conditions.
+The original Windows, earlier WSL2 local suite, and refreshed WSL2 network
+suite are separate environments. Do not pool their latency records or rename
+fresh timings as the frozen measurements.

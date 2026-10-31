@@ -2,21 +2,34 @@
 
 | File | Responsibility |
 | --- | --- |
-| `src/verdi/tree.py` | Balanced owner tree, rotations, insertion/deletion |
-| `src/verdi/protocol.py` | Integer representation, scalar certificates, encrypted objects, signed snapshots, framed TCP, base verifier |
-| `src/verdi/retrieval.py` | Packed 4/6/8-bit codes, full VERDI scheduling, internal ablations, coverage audit, grouped summaries |
-| `src/verdi/owner.py` | Configurable tree publisher and flat publisher |
-| `src/verdi/image.py` | Reversible image codec, regional tags, sidecar, stable descriptor binding and RGB recovery |
-| `src/verdi/api.py` | Image-to-image leave-one-out wrapper and verified result descriptors |
-| `src/verdi/cache.py` | Read-only feature hashes and array loading |
-| `scripts/benchmark.py` | Retrieval scale and parameter sweeps |
-| `scripts/network.py` | Separate client, CPU affinity, paced TCP relay, calibration |
-| `scripts/updates.py` | Matched update timing/object reuse checks |
-| `scripts/images.py` | Supplied-image authentication and recovery checks |
+| `src/verdi/protocol.py` | Integer features, encrypted objects, signed states, contexts and framed TCP |
+| `src/verdi/retrieval.py` | Packed codes, six modes, final score/ID and complete coverage audit |
+| `src/verdi/owner.py` | Geometric and flat publishers |
+| `src/verdi/directory.py` | ID-paged authenticated publisher, without geometry |
+| `src/verdi/tree.py` | Geometric topology, rotations and updates |
+| `src/verdi/image.py` | Regional codec, descriptor commitments and authenticated RGB release |
+| `src/verdi/api.py` | Query-ID exclusion and descriptors from verified transcripts |
+| `src/verdi/cache.py` | Read-only feature identities and input loading |
+| `scripts/demo.py` | Generated Flat + fine TCP and bound-image functional check |
+| `scripts/benchmark.py` | Original scale/sensitivity scheduler |
+| `scripts/network.py` | Client affinity, paced relay and calibration |
+| `scripts/updates.py` | Matched owner timing and reuse checks |
+| `scripts/images.py` | Image authentication/recovery checks |
 | `scripts/quality.py` | Integer/float neighbor fidelity |
-| `scripts/extract_features.py` | Optional image encoder API calls; no encoder source bundled |
-| `scripts/audit_records.py` | Independent query-journal oracle and framing audit |
-| `scripts/plot_results.py` | Local journal visualization |
-| `tests/test_verdi.py` | Exactness, update, corruption, binding and TCP regression checks |
+| `scripts/extract_features.py` | Optional encoder API calls, no encoder source bundled |
+| `scripts/audit_records.py` | Journal oracle and framing audit |
+| `scripts/reconstruct_paper.py` | Current display projection from frozen archives and saved aggregates |
+| `scripts/plot_network_profiles.py` | Current Windows network bar figure |
+| `scripts/plot_results.py` | Canonically labelled local-journal viewer |
+| `configs/paper_manifest.json` | Layout names, versions, source hashes and current display map |
+| `paper_data/` | Non-content saved aggregates and rounded figure source |
+| `tests/` | Exactness, updates, corruptions, binding and timeout checks |
 
-The release extracts the measured author modules into a package and parameterizes filesystem locations. It excludes legacy text-query evaluation, old binary-feasibility routines, unrelated training code, external scheme code, manuscript sources, literature notes, datasets, pretrained weights, local credentials, and private research logs. The paper protocol and measured scheduling are retained. Image encode/decode timers exclude input decoding, tiling, and reassembly as in the recorded image experiment.
+See [protocol](PROTOCOL.md), [reproduction](REPRODUCING.md) and
+[paper alignment](PAPER_ALIGNMENT.md). Historical `full` means Geo + fine.
+The directory uses the API's `fine_only` on its own signed snapshot;
+it is distinct from Tree + fine even though the bound scheduler is shared.
+
+Only the authors' core code and reconstruction/presentation tools are
+provided. Dataset content, feature arrays, weights, keys, unrelated training
+code, third-party implementations and manuscript files are excluded.
